@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+const { ethers } = require('ethers');
 
 // Contract ABI (simplified for the functions we need)
 const contractABI = [
@@ -13,7 +13,7 @@ const contractABI = [
 ];
 
 // Initialize blockchain connection
-export function getContract() {
+function getContract() {
     const provider = new ethers.JsonRpcProvider(process.env.AMOY_RPC_URL);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
     const contractAddress = process.env.CONTRACT_ADDRESS || '0x0fFA6B784CA4d1D97d37Bdc9717Dfa0296319659';
@@ -22,7 +22,7 @@ export function getContract() {
 }
 
 // Pinata upload function
-export async function uploadToPinata(buffer, filename) {
+async function uploadToPinata(buffer, filename) {
     const PINATA_API_KEY = process.env.PINATA_API_KEY;
     const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 
@@ -72,7 +72,7 @@ export async function uploadToPinata(buffer, filename) {
 }
 
 // Generate certificate PDF
-export async function generateCertificatePDF(certificateData) {
+async function generateCertificatePDF(certificateData) {
     const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
 
     const pdfDoc = await PDFDocument.create();
@@ -161,3 +161,9 @@ export async function generateCertificatePDF(certificateData) {
 
     return await pdfDoc.save();
 }
+
+module.exports = {
+    getContract,
+    uploadToPinata,
+    generateCertificatePDF
+};
