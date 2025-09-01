@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .response {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Test Page</h1>
+
+    <div class="test-section">
+        <h2>Test Health Endpoint</h2>
+        <button onclick="testHealth()">Test /api/health</button>
+        <div id="healthResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Environment Variables</h2>
+        <button onclick="testEnvVars()">Check Environment</button>
+        <div id="envResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Raw Response Debug</h2>
+        <button onclick="testRawResponse()">Get Raw Response</button>
+        <div id="rawResult"></div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' ?
+            'http://localhost:3001/api' :
+            '/api';
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const responseText = await response.text();
+
+                resultDiv.innerHTML = `
+                    <div class="success">Status: ${response.status}</div>
+                    <div class="success">Headers: ${JSON.stringify(Object.fromEntries(response.headers))}</div>
+                    <div class="response">Raw Response:\n${responseText}</div>
+                `;
+
+                // Try to parse as JSON
+                try {
+                    const jsonData = JSON.parse(responseText);
+                    resultDiv.innerHTML += `<div class="success">✅ Valid JSON response</div>`;
+                } catch (e) {
+                    resultDiv.innerHTML += `<div class="error">❌ Not valid JSON: ${e.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testEnvVars() {
+            const resultDiv = document.getElementById('envResult');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                if (data.environment) {
+                    resultDiv.innerHTML = `
+                        <div class="success">Environment Variables Status:</div>
+                        <div class="response">${JSON.stringify(data.environment, null, 2)}</div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">No environment data in response</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testRawResponse() {
+            const resultDiv = document.getElementById('rawResult');
+            try {
+                // Test different endpoints
+                const endpoints = ['/health', '/verify-certificate?id=1'];
+
+                for (const endpoint of endpoints) {
+                    const response = await fetch(`${API_BASE}${endpoint}`);
+                    const responseText = await response.text();
+
+                    resultDiv.innerHTML += `
+                        <h3>Endpoint: ${endpoint}</h3>
+                        <div>Status: ${response.status} ${response.statusText}</div>
+                        <div>Content-Type: ${response.headers.get('content-type')}</div>
+                        <div class="response">Response:\n${responseText}</div>
+                        <hr>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>
