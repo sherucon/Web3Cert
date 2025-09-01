@@ -373,7 +373,10 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3001/api';
+        // Detect if running on Vercel or localhost
+        const API_BASE = window.location.hostname === 'localhost' ?
+            'http://localhost:3001/api' :
+            '/api';
 
         // Tab switching
         function showTab(tabName) {
@@ -405,7 +408,7 @@
             const registrationNumber = document.getElementById('registrationNumber').value;
 
             try {
-                const response = await fetch(`${API_BASE}/university/register`, {
+                const response = await fetch(`${API_BASE}/register-university`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, registrationNumber })
@@ -470,7 +473,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/certificate/issue`, {
+                const response = await fetch(`${API_BASE}/issue-certificate`, {
                     method: 'POST',
                     body: formData
                 });
@@ -507,7 +510,7 @@
             const certificateId = document.getElementById('certificateId').value;
 
             try {
-                const response = await fetch(`${API_BASE}/certificate/verify/${certificateId}`);
+                const response = await fetch(`${API_BASE}/verify-certificate?id=${certificateId}`);
                 const data = await response.json();
 
                 if (data.certificate) {
@@ -527,7 +530,7 @@
             const ipfsHash = document.getElementById('ipfsHash').value;
 
             try {
-                const response = await fetch(`${API_BASE}/certificate/verify-hash/${ipfsHash}`);
+                const response = await fetch(`${API_BASE}/verify-certificate-hash?hash=${ipfsHash}`);
                 const data = await response.json();
 
                 if (data.certificate) {
@@ -547,7 +550,7 @@
             const studentWallet = document.getElementById('studentWallet').value;
 
             try {
-                const response = await fetch(`${API_BASE}/student/${studentWallet}/certificates`);
+                const response = await fetch(`${API_BASE}/student-certificates?address=${studentWallet}`);
                 const data = await response.json();
 
                 if (data.certificates && data.certificates.length > 0) {
