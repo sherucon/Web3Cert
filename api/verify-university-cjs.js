@@ -34,7 +34,7 @@ module.exports = async function handler(req, res) {
         // Get university details
         try {
             const universityDetails = await contract.getUniversityDetails(universityAddress);
-            
+
             if (!universityDetails.name || universityDetails.name === '') {
                 return res.json({
                     success: false,

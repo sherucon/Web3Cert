@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
         });
     } catch (error) {
         console.error('Error registering university:', error);
-        
+
         // Handle specific error cases
         if (error.message.includes('University already registered')) {
             return res.json({
