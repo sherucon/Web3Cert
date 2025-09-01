@@ -1,33 +1,5 @@
 import { getContract, uploadToPinata, generateCertificatePDF } from './_utils.js';
-import multer from 'multer';
 import { ethers } from 'ethers';
-
-// Configure multer for serverless
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB limit
-    },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') {
-            cb(null, true);
-        } else {
-            cb(new Error('Only PDF files are allowed'));
-        }
-    }
-});
-
-// Helper to run multer in serverless
-function runMiddleware(req, res, fn) {
-    return new Promise((resolve, reject) => {
-        fn(req, res, (result) => {
-            if (result instanceof Error) {
-                return reject(result);
-            }
-            return resolve(result);
-        });
-    });
-}
 
 export default async function handler(req, res) {
     // Enable CORS
@@ -46,9 +18,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Run multer middleware
-        await runMiddleware(req, res, upload.single('template'));
-
         const { studentAddress, studentName, courseName, grade, completionDate } = req.body;
 
         if (!studentAddress || !studentName || !courseName || !grade || !completionDate) {
@@ -64,7 +33,7 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'University not verified' });
         }
 
-        // Generate certificate PDF
+        // Generate certificate PDF (no file upload support for now to simplify)
         const certificateData = {
             studentName,
             courseName,
@@ -73,14 +42,8 @@ export default async function handler(req, res) {
             university: (await contract.getUniversityDetails(signer.address)).name
         };
 
-        let pdfBuffer;
-        if (req.file) {
-            // Use uploaded template
-            pdfBuffer = req.file.buffer;
-        } else {
-            // Generate default certificate
-            pdfBuffer = await generateCertificatePDF(certificateData);
-        }
+        // Generate default certificate
+        const pdfBuffer = await generateCertificatePDF(certificateData);
 
         // Upload to IPFS
         const filename = `certificate_${studentName}_${courseName}_${Date.now()}.pdf`;
@@ -123,10 +86,4 @@ export default async function handler(req, res) {
         console.error('Error issuing certificate:', error);
         res.status(500).json({ error: error.message });
     }
-}
-
-export const config = {
-    api: {
-        bodyParser: false,
-    },
 }

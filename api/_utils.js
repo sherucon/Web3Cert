@@ -1,4 +1,4 @@
-const { ethers } = require('ethers');
+import { ethers } from 'ethers';
 
 // Contract ABI (simplified for the functions we need)
 const contractABI = [
@@ -13,7 +13,7 @@ const contractABI = [
 ];
 
 // Initialize blockchain connection
-function getContract() {
+export function getContract() {
     const provider = new ethers.JsonRpcProvider(process.env.AMOY_RPC_URL);
     const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
     const contractAddress = process.env.CONTRACT_ADDRESS || '0x0fFA6B784CA4d1D97d37Bdc9717Dfa0296319659';
@@ -22,7 +22,7 @@ function getContract() {
 }
 
 // Pinata upload function
-async function uploadToPinata(buffer, filename) {
+export async function uploadToPinata(buffer, filename) {
     const PINATA_API_KEY = process.env.PINATA_API_KEY;
     const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 
@@ -33,9 +33,9 @@ async function uploadToPinata(buffer, filename) {
     }
 
     try {
-        const FormData = require('form-data');
-        const { Readable } = require('stream');
-        const axios = require('axios');
+        const FormData = (await import('form-data')).default;
+        const { Readable } = await import('stream');
+        const axios = (await import('axios')).default;
 
         const formData = new FormData();
         const stream = Readable.from(buffer);
@@ -72,8 +72,8 @@ async function uploadToPinata(buffer, filename) {
 }
 
 // Generate certificate PDF
-async function generateCertificatePDF(certificateData) {
-    const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
+export async function generateCertificatePDF(certificateData) {
+    const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
 
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([595, 842]); // A4 size
@@ -161,9 +161,3 @@ async function generateCertificatePDF(certificateData) {
 
     return await pdfDoc.save();
 }
-
-module.exports = {
-    getContract,
-    uploadToPinata,
-    generateCertificatePDF
-};

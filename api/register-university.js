@@ -1,4 +1,5 @@
-const { getContract } = require('./_utils');
+import { getContract } from './_utils.js';
+import { ethers } from 'ethers';
 
 export default async function handler(req, res) {
     // Enable CORS

@@ -458,24 +458,23 @@
             e.preventDefault();
             showLoading('issueLoading', true);
 
-            const formData = new FormData();
-            formData.append('studentAddress', document.getElementById('studentAddress').value);
-            formData.append('studentName', document.getElementById('studentName').value);
-            formData.append('courseName', document.getElementById('courseName').value);
-            formData.append('grade', document.getElementById('grade').value);
-
             const completionDate = new Date(document.getElementById('completionDate').value);
-            formData.append('completionDate', Math.floor(completionDate.getTime() / 1000));
 
-            const template = document.getElementById('template').files[0];
-            if (template) {
-                formData.append('template', template);
-            }
+            const requestBody = {
+                studentAddress: document.getElementById('studentAddress').value,
+                studentName: document.getElementById('studentName').value,
+                courseName: document.getElementById('courseName').value,
+                grade: document.getElementById('grade').value,
+                completionDate: Math.floor(completionDate.getTime() / 1000)
+            };
 
             try {
-                const response = await fetch(`${API_BASE}/issue-certificate`, {
+                const response = await fetch(`${API_BASE}/issue-certificate-simple`, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
                 });
 
                 const data = await response.json();
