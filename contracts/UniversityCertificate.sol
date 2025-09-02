@@ -204,17 +204,10 @@ contract UniversityCertificate is Ownable, ReentrancyGuard {
      * @dev Revoke a certificate (only issuing university can do this)
      * @param certificateId ID of the certificate to revoke
      */
-    function revokeCertificate(uint256 certificateId) 
-        external 
-        onlyVerifiedUniversity 
-    {
-        require(certificateId <= _certificateIdCounter && certificateId > 0, "Certificate does not exist");
-        require(certificates[certificateId].issuer == msg.sender, "Not the issuing university");
-        require(certificates[certificateId].isValid, "Certificate already revoked");
-        
-        certificates[certificateId].isValid = false;
-        emit CertificateRevoked(certificateId);
-    }
+    /**
+     * @dev Revoke a certificate (only issuing university can do this)
+     * @param certificateId ID of the certificate to revoke
+     */
     
     /**
      * @dev Get all certificates for a student
@@ -233,9 +226,10 @@ contract UniversityCertificate is Ownable, ReentrancyGuard {
      * @dev Get total number of certificates issued
      * @return Total certificate count
      */
-    function getTotalCertificates() external view returns (uint256) {
-        return _certificateIdCounter;
-    }
+    /**
+     * @dev Get total number of certificates issued
+     * @return Total certificate count
+     */
     
     /**
      * @dev Check if a university is verified
@@ -255,11 +249,9 @@ contract UniversityCertificate is Ownable, ReentrancyGuard {
      * @param universityAddress Address of the university
      * @return University details
      */
-    function getUniversityDetails(address universityAddress)
-        external
-        view
-        returns (University memory)
-    {
-        return universities[universityAddress];
-    }
+    /**
+     * @dev Get university details
+     * @param universityAddress Address of the university
+     * @return University details
+     */
 }
